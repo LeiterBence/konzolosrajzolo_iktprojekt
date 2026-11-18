@@ -17,7 +17,8 @@
 
 |Dátum|Ki|Mi készült el vagy miben állapodtunk meg?|Következő lépés vagy commit|
 |-|-|-|-|
-|2026-11-18|Leiter Bence|Elkészültek a main függvényen kívüli változók, main függvény nagy része benne az adatbekérés és a kilépés megoldása, kurzor mozgatása, a nyomdák működése, a cellák kirajzolása, a bal panel(állapotpanel) törlése, karakterválasztás és színkiválasztás. | Saját menüfunkció megírása. |
+|2026-11-18|Leiter Bence|Elkészültek a main függvényen kívüli változók, main függvény nagy része benne az adatbekérés és a kilépés megoldása, kurzor mozgatása, a nyomdák működése, a cellák kirajzolása, a bal panel(állapotpanel) törlése, karakterválasztás és színkiválasztás.|Saját menüfunkció megírása.|
+|<br /><br /><br />2026-11-18<br /><br /><br />|Debreceni Dorián|Fájlbekérés és hibakezelés|Menü függvény|
 
 ## Másik pár tesztje
 

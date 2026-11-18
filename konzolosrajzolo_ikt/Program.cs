@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.IO;
 
 namespace KonzolosRajzolo
@@ -279,5 +279,51 @@ namespace KonzolosRajzolo
             rajzoloFeluletKarakterek[y, x] = aktualisKarakter;
             rajzoloFeluletSzinek[y, x] = aktualisSzin;
         }
+        static void fajlBetoltese()
+{
+    allapotPanelTorles();
+    Console.SetCursorPosition(1, 1);
+    Console.Write("Minta Betöltése");
+    Console.SetCursorPosition(1, 3);
+    Console.Write("(Üres Enter = Mégse):");
+    Console.SetCursorPosition(1, 5);
+    string fajlneve = Console.ReadLine().Trim();
+    string[] fajlSorai = File.ReadAllLines(fajlneve);
+
+    if (!File.Exists(fajlneve))
+    {
+        hibaKezeles("Nem található a fájl!");
+    }
+
+    if (fajlSorai.Length > rajzoloFeluletMagassaga)
+    {
+        hibaKezeles("A minta túl magas");
+    }
+
+    foreach (string sor in fajlSorai)
+    {
+        if (sor.Length > rajzoloFeluletSzelessege)
+        {
+            hibaKezeles("A minta túl széles");
+        }
+    }
+    for (int y = 0; y < fajlSorai.Length; y++)
+    {
+        for (int x = 0; x < fajlSorai[y].Length; x++)
+        {
+            rajzoloFeluletKarakterek[y, x] = fajlSorai[y][x];
+            rajzoloFeluletSzinek[y, x] = aktualisSzin;
+        }
+    }
+}
+static void hibaKezeles(string hibaUzenet)
+{
+    Console.Beep();
+    kiiras = "HIBA " + hibaUzenet;
+    Console.SetCursorPosition(1, rajzoloFeluletKezdoKordinataY + rajzoloFeluletMagassaga + 2);
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.Write(kiiras.PadRight(74));
+    Console.ResetColor();
+}
     }
 }
