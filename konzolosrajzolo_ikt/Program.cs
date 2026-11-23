@@ -5,11 +5,11 @@ namespace KonzolosRajzolo
 {
     class Program
     {
-        const int rajzoloFeluletSzelessege = 50;
+        const int rajzoloFeluletSzelessege = 70;
         const int rajzoloFeluletMagassaga = 20;
-        const int rajzoloFeluletKezdoKordinataX = 21;
-        const int rajzoloFeluletKezdoKordinataY = 2;
-        const int allapotPanelSzelesseg = 20;
+        const int rajzoloFeluletKezdoKordinataX = 33;
+        const int rajzoloFeluletKezdoKordinataY = 1;
+        const int allapotPanelSzelesseg = 32;
         static char[,] rajzoloFeluletKarakterek = new char[rajzoloFeluletMagassaga, rajzoloFeluletSzelessege];
         static ConsoleColor[,] rajzoloFeluletSzinek = new ConsoleColor[rajzoloFeluletMagassaga, rajzoloFeluletSzelessege];
 
@@ -18,7 +18,7 @@ namespace KonzolosRajzolo
         static int kurzorHelyzetY = 0;
         static ConsoleColor aktualisSzin = ConsoleColor.Blue;
 
-        static string kiiras = "Nyilak: mozgás, Szóköz: ecset fel-le emelése, M: menü";
+        static string kiiras = "Nyilak: mozgás, Szóköz: ecset fel-le emelése";
 
         static ConsoleColor[] valaszthatoSzinek =
         {
@@ -35,11 +35,14 @@ namespace KonzolosRajzolo
 
         static void Main(string[] args)
         {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.CursorVisible = false;
             rajzlapTeljesTorlese();
             teljesKirajzolas();
             bool fut = true;
             while (fut)
             {
+                kiiras = "Nyilak: mozgás, Szóköz: ecset fel-le emelése
                 rajzlapKirajzolasa();
                 ConsoleKeyInfo mozgatasBekeres = Console.ReadKey(true);
 
@@ -62,20 +65,12 @@ namespace KonzolosRajzolo
 
                     case ConsoleKey.Spacebar:
                         ecsetLeteve = !ecsetLeteve;
-                        if (ecsetLeteve)
-                        {
-                            aktualisKarakterKiirasa(kurzorHelyzetY, kurzorHelyzetX);
-                            kiiras = "Ecset letéve!";
-                        }
-                        else
-                        {
-                            kiiras = "Ecset felvéve!";
-                        }
                         cellaKirajzolasa(kurzorHelyzetY, kurzorHelyzetX, true);
                         break;
                     //menü
                     case ConsoleKey.M:
                         MenuKezeles();
+                        teljesKirajzolas();
                         break;
                     //kilepes
                     case ConsoleKey.X:
@@ -102,6 +97,7 @@ namespace KonzolosRajzolo
             }
             Console.ResetColor();
             Console.Clear();
+            Console.CursorVisible = true;
             Console.WriteLine("Kilépés...");
         }
 
@@ -122,13 +118,12 @@ namespace KonzolosRajzolo
             kurzorHelyzetY += y;
             cellaKirajzolasa(regiY, regiX, false);
 
-            if(ecsetLeteve)
+            if (ecsetLeteve)
             {
                 aktualisKarakterKiirasa(kurzorHelyzetY, kurzorHelyzetX);
             }
             cellaKirajzolasa(kurzorHelyzetY, kurzorHelyzetX, true);
-            
-            return;
+            allapotPanelKirajzolas();
         }
         static void nyomdaLerakasa(string tipus, int nyomdaMerete)
         {
@@ -137,8 +132,7 @@ namespace KonzolosRajzolo
             if (kurzorHelyzetX + sugar >= rajzoloFeluletSzelessege || kurzorHelyzetX - sugar < 0 ||
                 kurzorHelyzetY + sugar >= rajzoloFeluletMagassaga || kurzorHelyzetY - sugar < 0)
             {
-                Console.Beep();
-                kiiras = "";
+                hibaKezeles("A nyomda kilóg a rajzlapról!");
                 return;
             }
 
@@ -184,6 +178,7 @@ namespace KonzolosRajzolo
             }
 
             rajzlapKirajzolasa();
+            allapotPanelKirajzolas();
         }
         static void allapotPanelTorles()
         {
@@ -212,7 +207,14 @@ namespace KonzolosRajzolo
             char jelenlegiKarakter = rajzoloFeluletKarakterek[magassag, szelesseg];
             if (kurzorLeVanTeve)
             {
-                if (jelenlegiKarakter == ' ') Console.Write('+');
+
+                if (jelenlegiKarakter == ' ')
+                {
+                    Console.BackgroundColor = ConsoleColor.Gray;
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    Console.Write(jelenlegiKarakter);
+                    Console.ResetColor();
+                }
                 else Console.Write(jelenlegiKarakter);
             }
             else
@@ -224,16 +226,21 @@ namespace KonzolosRajzolo
         }
         static void karakterValasztas()
         {
-            Console.WriteLine("KARAKTER VALASZTAS");
             while (true)
             {
                 allapotPanelTorles();
+                Console.SetCursorPosition(1, 4);
+                Console.Write("Vissza: Esc");
+                Console.SetCursorPosition(1, 3);
+                Console.Write("Írd be az új karaktert: ");
+                Console.CursorVisible = true;
                 ConsoleKeyInfo ujKarakter = Console.ReadKey(true);
+                Console.CursorVisible = false;
                 if (ujKarakter.Key == ConsoleKey.Escape) return;
 
-                if (char.IsControl(ujKarakter.KeyChar))
+                if (char.IsControl(ujKarakter.KeyChar) || ujKarakter.KeyChar == ' ')
                 {
-                    // hiba nem megengedett a karakter
+                    Console.Beep();
                     continue;
                 }
                 aktualisKarakter = ujKarakter.KeyChar;
@@ -242,14 +249,23 @@ namespace KonzolosRajzolo
         }
         static void szinKivalasztas()
         {
+            allapotPanelTorles();
             while (true)
             {
+                for (int i = 0; i < valaszthatoSzinek.Length; i++)
+                {
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    Console.SetCursorPosition(1, i + 2);
+                    Console.Write(i + 1 + ". ");
+                    Console.ForegroundColor = valaszthatoSzinek[i];
+                    Console.Write(valaszthatoSzinek[i]);
+                }
                 ConsoleKeyInfo valasztottSzin = Console.ReadKey(true);
                 if (valasztottSzin.Key == ConsoleKey.Escape) return;
 
                 if (valasztottSzin.KeyChar < '1' || valasztottSzin.KeyChar > '7')
                 {
-                    //hiba nem megengedett a karakter
+                    Console.Beep();
                     continue;
                 }
                 aktualisSzin = valaszthatoSzinek[valasztottSzin.KeyChar - '1'];
@@ -263,21 +279,119 @@ namespace KonzolosRajzolo
             Console.Clear();
 
             Console.SetCursorPosition(1, 0);
+            Console.ForegroundColor = ConsoleColor.Magenta;
             Console.Write("Konzolos Rajzoló program");
+            Console.ResetColor();
 
-            Console.SetCursorPosition(rajzoloFeluletSzelessege + rajzoloFeluletKezdoKordinataX, 0);
+            Console.SetCursorPosition(rajzoloFeluletSzelessege / 2 + rajzoloFeluletKezdoKordinataX - 4, 0);
+            Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write("RAJZLAP");
+            Console.ResetColor();
 
-            for (int i = 1; i < rajzoloFeluletMagassaga; i++)
+            for (int i = 1; i <= rajzoloFeluletMagassaga; i++)
             {
                 Console.SetCursorPosition(rajzoloFeluletKezdoKordinataX - 1, i);
                 Console.Write('|');
+                Console.SetCursorPosition(rajzoloFeluletKezdoKordinataX + rajzoloFeluletSzelessege, i);
+                Console.Write('|');
             }
+            allapotPanelKirajzolas();
+            rajzlapKirajzolasa();
         }
         static void aktualisKarakterKiirasa(int y, int x)
         {
             rajzoloFeluletKarakterek[y, x] = aktualisKarakter;
             rajzoloFeluletSzinek[y, x] = aktualisSzin;
+        }
+        static void fajlBetoltese()
+        {
+            allapotPanelTorles();
+            Console.SetCursorPosition(1, 1);
+            Console.Write("Minta Betöltése");
+            Console.SetCursorPosition(1, 3);
+            Console.Write("(Üres Enter = Mégse):");
+            Console.SetCursorPosition(1, 5);
+            string fajlneve = Console.ReadLine().Trim();
+            string[] fajlSorai = File.ReadAllLines(fajlneve);
+
+            if (!File.Exists(fajlneve))
+            {
+                hibaKezeles("Nem található a fájl!");
+            }
+
+            if (fajlSorai.Length > rajzoloFeluletMagassaga)
+            {
+                hibaKezeles("A minta túl magas");
+            }
+
+            foreach (string sor in fajlSorai)
+            {
+                if (sor.Length > rajzoloFeluletSzelessege)
+                {
+                    hibaKezeles("A minta túl széles");
+                }
+            }
+            for (int y = 0; y < fajlSorai.Length; y++)
+            {
+                for (int x = 0; x < fajlSorai[y].Length; x++)
+                {
+                    rajzoloFeluletKarakterek[y, x] = fajlSorai[y][x];
+                    rajzoloFeluletSzinek[y, x] = aktualisSzin;
+                }
+            }
+        }
+        static void hibaKezeles(string hibaUzenet)
+        {
+            Console.Beep();
+            kiiras = "HIBA " + hibaUzenet;
+            Console.SetCursorPosition(1, rajzoloFeluletKezdoKordinataY + rajzoloFeluletMagassaga + 2);
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write(kiiras.PadRight(74));
+            Console.ResetColor();
+        }
+        static void allapotPanelKirajzolas()
+        {
+            allapotPanelTorles();
+
+
+            Console.SetCursorPosition(1, 2);
+            Console.Write($"Pozíció: {kurzorHelyzetX},{kurzorHelyzetY}");
+
+            Console.SetCursorPosition(1, 3);
+            Console.Write($"Karakter: {aktualisKarakter}");
+
+            Console.SetCursorPosition(1, 4);
+            Console.Write($"Szín: ");
+            Console.ForegroundColor = aktualisSzin;
+            Console.Write(aktualisSzin);
+            Console.ResetColor();
+
+            Console.SetCursorPosition(1, 5);
+            Console.Write("Ecset: ");
+            if (ecsetLeteve) Console.Write("Letéve");
+            else Console.Write("Felemelve");
+
+
+            Console.SetCursorPosition(1, 7);
+            Console.Write("M -> Menü");
+
+            Console.SetCursorPosition(1, 8);
+            Console.Write("X -> Kilépés");
+
+            Console.SetCursorPosition(1, rajzoloFeluletKezdoKordinataY + rajzoloFeluletMagassaga + 2);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(kiiras.PadRight(74));
+        }
+        static void rajzlapTeljesTorlese()
+        {
+            for (int y = 0; y < rajzoloFeluletMagassaga; y++)
+            {
+                for (int x = 0; x < rajzoloFeluletSzelessege; x++)
+                {
+                    rajzoloFeluletKarakterek[y, x] = ' ';
+                    rajzoloFeluletSzinek[y, x] = ConsoleColor.White;
+                }
+            }
         }
     }
 }

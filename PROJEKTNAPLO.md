@@ -18,6 +18,8 @@
 |Dátum|Ki|Mi készült el vagy miben állapodtunk meg?|Következő lépés vagy commit|
 |-|-|-|-|
 |2026-11-18|Leiter Bence|Elkészültek a main függvényen kívüli változók, main függvény nagy része benne az adatbekérés és a kilépés megoldása, kurzor mozgatása, a nyomdák működése, a cellák kirajzolása, a bal panel(állapotpanel) törlése, karakterválasztás és színkiválasztás. | Saját menüfunkció megírása. |
+|2026-11-18|Debreceni Dorián| Fájlbekérés és hibakezelés | Menü függvény |
+|2026-11-23|Leiter Bence| Állapot panel kíírása és a rajzlap teljes törlése (saját menüfunkció) fv.-ek megírása és hibák javítása | feladat feltöltése |
 
 ## Másik pár tesztje
 
