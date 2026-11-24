@@ -101,13 +101,88 @@ namespace KonzolosRajzolo
             Console.WriteLine("Kilépés...");
         }
 
+        static void MenuKezeles()
+        {
+            string[] menupontok =
+            {
+                "1. Karakter Választása",
+                "2. Szín Kiválasztása",
+                "3. Fájlból Minta Betöltése",
+                "4. Teljes Rajz Fájlba mentés",
+                "5. Rajzlap Teljes Törlése",
+                "6. Vissza"
+            };
+            int kivalasztottMenupont = 0;
+            while (true)
+            {
+                allapotPanelTorles();
+
+                for (int i = 0; i < menupontok.Length; i++)
+                {
+                    Console.SetCursorPosition(1, 3 + i);
+                    if (i == kivalasztottMenupont)
+                    {
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write("> " + menupontok[i]);
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                        Console.Write("  " + menupontok[i]);
+                    }
+                }
+
+
+
+                ConsoleKeyInfo key = Console.ReadKey(true);
+                if (key.Key == ConsoleKey.UpArrow)
+                {
+                    kivalasztottMenupont = (kivalasztottMenupont - 1 + menupontok.Length) % menupontok.Length;
+                }
+                else if (key.Key == ConsoleKey.DownArrow)
+                {
+                    kivalasztottMenupont = (kivalasztottMenupont + 1) % menupontok.Length;
+                }
+                else if (key.Key == ConsoleKey.Escape)
+                {
+                    return;
+                }
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    switch (kivalasztottMenupont)
+                    {
+                        case 0:
+                            karakterValasztas();
+                            return;
+                        case 1:
+                            szinKivalasztas();
+                            return;
+                        case 2:
+                            fajlBetoltese();
+                            return;
+                        case 3:
+                            rajzMenteseSzovegfajlba();
+                            return;
+                        case 4:
+                            rajzlapTeljesTorlese();
+                            return;
+                        case 5:
+                            return;
+                    }
+                }
+                else
+                {
+                    Console.Beep();
+                }
+            }
+        }
+
         static void kurzorMozgatasa(int x, int y)
         {
 
             //hatarak ellenorzese
             if (kurzorHelyzetX + x >= rajzoloFeluletSzelessege || kurzorHelyzetX + x < 0 || kurzorHelyzetY + y >= rajzoloFeluletMagassaga || kurzorHelyzetY + y < 0)
             {
-                //hiba
                 Console.Beep();
                 return;
             }
@@ -305,39 +380,50 @@ namespace KonzolosRajzolo
         }
         static void fajlBetoltese()
         {
-            allapotPanelTorles();
-            Console.SetCursorPosition(1, 1);
-            Console.Write("Minta Betöltése");
-            Console.SetCursorPosition(1, 3);
-            Console.Write("(Üres Enter = Mégse):");
-            Console.SetCursorPosition(1, 5);
-            string fajlneve = Console.ReadLine().Trim();
-            string[] fajlSorai = File.ReadAllLines(fajlneve);
-
-            if (!File.Exists(fajlneve))
+            while (true)
             {
-                hibaKezeles("Nem található a fájl!");
-            }
+                allapotPanelTorles();
+                Console.SetCursorPosition(1, 1);
+                Console.Write("Minta Betöltése");
+                Console.SetCursorPosition(1, 3);
+                Console.Write("(Üres Enter = Mégse):");
+                Console.SetCursorPosition(1, 5);
+                string fajlneve = Console.ReadLine().Trim();
 
-            if (fajlSorai.Length > rajzoloFeluletMagassaga)
-            {
-                hibaKezeles("A minta túl magas");
-            }
+                if (fajlneve == "") return;
 
-            foreach (string sor in fajlSorai)
-            {
-                if (sor.Length > rajzoloFeluletSzelessege)
+                if (!File.Exists(fajlneve))
                 {
-                    hibaKezeles("A minta túl széles");
+                    hibaKezeles("Nem található a fájl!");
+                    continue;
+
                 }
-            }
-            for (int y = 0; y < fajlSorai.Length; y++)
-            {
-                for (int x = 0; x < fajlSorai[y].Length; x++)
+                string[] fajlSorai = File.ReadAllLines(fajlneve);
+
+                if (fajlSorai.Length > rajzoloFeluletMagassaga)
                 {
-                    rajzoloFeluletKarakterek[y, x] = fajlSorai[y][x];
-                    rajzoloFeluletSzinek[y, x] = aktualisSzin;
+                    hibaKezeles("A minta túl magas");
+                    continue;
                 }
+
+                foreach (string sor in fajlSorai)
+                {
+                    if (sor.Length > rajzoloFeluletSzelessege)
+                    {
+                        hibaKezeles("A minta túl széles");
+                        continue;
+                    }
+                }
+                rajzlapTeljesTorlese();
+                for (int y = 0; y < fajlSorai.Length; y++)
+                {
+                    for (int x = 0; x < fajlSorai[y].Length; x++)
+                    {
+                        rajzoloFeluletKarakterek[y, x] = fajlSorai[y][x];
+                        rajzoloFeluletSzinek[y, x] = aktualisSzin;
+                    }
+                }
+                return;
             }
         }
         static void hibaKezeles(string hibaUzenet)
@@ -393,5 +479,35 @@ namespace KonzolosRajzolo
                 }
             }
         }
+        static void rajzMenteseSzovegfajlba()
+        {
+
+            Console.SetCursorPosition(1, 21);
+
+            Console.CursorVisible = true;
+            Console.Write("Írd be a fájl nevét: ");
+            Console.CursorVisible = false;
+
+            string mentettFajlNeve = Console.ReadLine().Trim();
+            string sorTartalma;
+
+            if (mentettFajlNeve == "") return;
+            if (!mentettFajlNeve.EndsWith(".txt"))
+            {
+                mentettFajlNeve += ".txt";
+            }
+
+            File.Create(mentettFajlNeve).Close();
+            for (int y = 0; y < rajzoloFeluletMagassaga; y++)
+            {
+                sorTartalma = "";
+                for (int x = 0; x < rajzoloFeluletSzelessege; x++)
+                {
+                    sorTartalma += rajzoloFeluletKarakterek[y, x];
+                }
+                File.AppendAllText(mentettFajlNeve, $"{sorTartalma}\n");
+            }
+        }
+
     }
 }
